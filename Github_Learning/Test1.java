@@ -17,7 +17,6 @@ public class Test1 {
 			System.err.println(e.getMessage());
 		}
 		int i = 0;
-		System.out.println(output.format(date.getTime()).toString());
 		switch (output.format(date.getTime()).toString()) {
 		case "Sun": i = 0; break; 
 		case "Mon": i = 1; break; 
