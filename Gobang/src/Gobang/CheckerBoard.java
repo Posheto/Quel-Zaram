@@ -1,4 +1,4 @@
-package Gobang;
+package gobang;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -43,7 +43,7 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 	private JButton settings = new JButton("Settings");
 	private JButton info = new JButton("Info");
 	private JButton surrender = new JButton("Surrender");
-	private JButton about = new JButton("About");
+	private JButton withdraw = new JButton("Withdraw");
 	private JButton exit = new JButton("Exit");
 	
 	@SuppressWarnings("deprecation")
@@ -76,19 +76,19 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 		settings.addActionListener(this);
 		info.addActionListener(this);
 		surrender.addActionListener(this);
-		about.addActionListener(this);
+		withdraw.addActionListener(this);
 		exit.addActionListener(this);
 		this.add(start);
 		this.add(settings);
 		this.add(info);
 		this.add(surrender);
-		this.add(about);
+		this.add(withdraw);
 		this.add(exit);
 		start.setBounds(383, 52 ,100 ,30);
 		settings.setBounds(383, 102 ,100 ,30);
 		info.setBounds(383, 152 ,100 ,30);
 		surrender.setBounds(383, 253 ,100 ,30);
-		about.setBounds(383, 302 ,100 ,30);
+		withdraw.setBounds(383, 302 ,100 ,30);
 		exit.setBounds(383, 352 ,100 ,30);
 		
 		thread.start();
@@ -103,7 +103,7 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 		
 		g.setColor(Color.BLACK);
 		g.drawImage(background, 3, 26, this);
-		g.setFont(new Font("Consolas", Font.ITALIC, 25));
+		g.setFont(new Font("Consolas", Font.ITALIC, 20));
 		g.drawString(gameinfo, 100, 60);
 		g.setFont(new Font("Consolas", Font.BOLD, 12));
 		g.drawString("Black's time : " + blacktime, 30, 475);
@@ -250,6 +250,12 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 	private void restart() {
 		blackTime = maxTime;
 		whiteTime = maxTime;
+		blacktime = (blackTime / 3600) + ":" + 
+				(blackTime / 60 - blackTime / 3600 * 60) + ":" +
+				(blackTime - blackTime / 60 * 60);
+		whitetime = (whiteTime / 3600) + ":" + 
+				(whiteTime / 60 - whiteTime / 3600 * 60) + ":" +
+				(whiteTime - whiteTime / 60 * 60);
 		gameinfo = "Game has been restarted";
 		for (int i = 0; i < 15; i++) {
 			for (int j = 0; j < 15; j++) {
@@ -259,7 +265,7 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 		}
 		isGameOn = true;
 		isBlack = true;
-		start.setText("restart");
+		start.setText("Restart");
 		thread.resume();
 		this.repaint();
 	}
@@ -268,6 +274,7 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 		
 	}
 
+	@SuppressWarnings("deprecation")
 	public void mousePressed(MouseEvent e) {
 		x = e.getY();
 		y = e.getX();
@@ -288,6 +295,7 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 					JOptionPane.showMessageDialog(this, "The match is end! " + (isBlack ? "White side win!" : "Black side win!"));
 					gameinfo = "Congratulations!";
 					isGameOn = false;
+					thread.suspend();;
 				}
 			} else {
 				JOptionPane.showMessageDialog(this, "Location has been occupied");
@@ -327,7 +335,7 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 				whiteTime = maxTime;
 				isGameOn = true;
 				gameinfo = "Game start !";
-				start.setText("restart");
+				start.setText("Restart");
 			}
 		} else if (target == settings) {
 			String input = JOptionPane.showInputDialog("Please enter a time limit.(Unit: minutes)"
@@ -356,13 +364,18 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 			int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to surrender?");
 			if (result == 0) {
 				isGameOn = false;
-				start.setText("start");
+				start.setText("Start");
 				JOptionPane.showMessageDialog(this, (isBlack ? "Black " : "White ") + "side choose death ! Game over !");
 			}
-		} else if (target == about) {
-			JOptionPane.showMessageDialog(this, "Made by Posheto in Github."
-					+ "\n"
-					+ "In fact, the game has a CHEAT, can you find it?");
+		} else if (target == withdraw) {
+			if (points[x][y] != 0) {
+				gameinfo = (isBlack ? "White" : "Black") + "side take back a move";
+				points[x][y] = 0;
+				specialpoints[x][y] = 0;
+				isBlack = !isBlack;
+			} else {
+				gameinfo = "You can only take back one move";
+			}
 		} else if (target == exit) {
 			int result = JOptionPane.showConfirmDialog(this, "Exit now ? " + (isGameOn ? "You will lose this Game !" : ""));
 			if (result == 0) {
@@ -376,25 +389,6 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 	public void run() {
 		if (maxTime > 0) {
 			while (true) {
-				if (isBlack) {
-					blackTime--;
-					if (blackTime < 0) {
-						JOptionPane.showMessageDialog(this, "Black side overtime, white side wins");
-						isGameOn = false;
-						start.setText("start");
-						gameinfo = "Welcome";
-						thread.stop();
-					}
-				} else {
-					whiteTime--;
-					if (whiteTime < 0) {
-						JOptionPane.showMessageDialog(this, "White side overtime, black side wins");
-						isGameOn = false;
-						start.setText("start");
-						gameinfo = "Welcome";
-						thread.stop();
-					}
-				}
 				if (maxTime == 0) {
 					blacktime = "Unlimited";
 					whitetime = "Unlimited";
@@ -405,6 +399,25 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 					whitetime = (whiteTime / 3600) + ":" + 
 							(whiteTime / 60 - whiteTime / 3600 * 60) + ":" +
 							(whiteTime - whiteTime / 60 * 60);
+					if (isBlack) {
+						blackTime--;
+						if (blackTime < 0) {
+							JOptionPane.showMessageDialog(this, "Black side overtime, white side wins");
+							isGameOn = false;
+							start.setText("Start");
+							gameinfo = "Welcome";
+							thread.stop();
+						}
+					} else {
+						whiteTime--;
+						if (whiteTime < 0) {
+							JOptionPane.showMessageDialog(this, "White side overtime, black side wins");
+							isGameOn = false;
+							start.setText("Start");
+							gameinfo = "Welcome";
+							thread.stop();
+						}
+					}
 				}
 				try {
 					Thread.sleep(1000);
