@@ -122,86 +122,45 @@ public class CheckerBoard extends JFrame implements MouseListener {
 		int HorizontalCount = -1;
 		int LeftDiagonalCount = -1;
 		int RightDiagonalCount = -1;
-		int i;
-		i = 0;
-		while ((x + i < 15) && (points[x + i][y] == color)) {
-			VerticallyCount++;
-			specialpoints[x + i][y] = 1;
-			i++;
-		}
-		i = 0;
-		while ((x - i >= 0) && (points[x - i][y] == color)) {
-			VerticallyCount++;
-			specialpoints[x - i][y] = 1;
-			i++;
-		}
+		VerticallyCount = this.checkCount(1, 0, color);
 		if (VerticallyCount >= 5) {
+			specialpoints[x][y] = 1;
 			return true;
 		} else {
-			for (i = 0; i < 15; i++) {
+			for (int i = 0; i < 15; i++) {
 				for (int j = 0; j < 15; j++) {
 					specialpoints[i][j] = 0;
 				}
 			}
 		}
-		i = 0;
-		while ((y + i < 15) && (points[x][y + i] == color)) {
-			HorizontalCount++;
-			specialpoints[x][y + i] = 1;
-			i++;
-		}
-		i = 0;
-		while ((y - i >= 0) && (points[x][y - i] == color)) {
-			HorizontalCount++;
-			specialpoints[x][y - i] = 1;
-			i++;
-		}
+		HorizontalCount = this.checkCount(0, 1, color);
 		if (HorizontalCount >= 5) {
+			specialpoints[x][y] = 1;
 			return true;
 		} else {
-			for (i = 0; i < 15; i++) {
+			for (int i = 0; i < 15; i++) {
 				for (int j = 0; j < 15; j++) {
 					specialpoints[i][j] = 0;
 				}
 			}
 		}
-		i = 0;
-		while ((y + i < 15) && (x - i >= 0) && (points[x - i][y + i] == color)) {
-			LeftDiagonalCount++;
-			specialpoints[x - i][y + i] = 1;
-			i++;
-		}
-		i = 0;
-		while ((y - i >= 0) && (x + i < 15) && (points[x + i][y - i] == color)) {
-			LeftDiagonalCount++;
-			specialpoints[x + i][y - i] = 1;
-			i++;
-		}
+		LeftDiagonalCount = this.checkCount(1, -1, color);
 		if (LeftDiagonalCount >= 5) {
+			specialpoints[x][y] = 1;
 			return true;
 		} else {
-			for (i = 0; i < 15; i++) {
+			for (int i = 0; i < 15; i++) {
 				for (int j = 0; j < 15; j++) {
 					specialpoints[i][j] = 0;
 				}
 			}
 		}
-		i = 0;
-		while ((y + i < 15) && (x + i < 15) && (points[x + i][y + i] == color)) {
-			RightDiagonalCount++;
-			specialpoints[x + i][y + i] = 1;
-			i++;
-		}
-		i = 0;
-		while ((y - i >= 0) && (x - i >= 0) && (points[x - i][y - i] == color)) {
-			RightDiagonalCount++;
-			specialpoints[x - i][y - i] = 1;
-			i++;
-		}
+		RightDiagonalCount = this.checkCount(1, 1, color);
 		if (RightDiagonalCount >= 5) {
+			specialpoints[x][y] = 1;
 			return true;
 		} else {
-			for (i = 0; i < 15; i++) {
+			for (int i = 0; i < 15; i++) {
 				for (int j = 0; j < 15; j++) {
 					specialpoints[i][j] = 0;
 				}
@@ -209,6 +168,39 @@ public class CheckerBoard extends JFrame implements MouseListener {
 		}
 		specialpoints[x][y] = 1;
 		return false;
+	}
+	
+	private int checkCount(int xChange, int yChange, int color) {
+		int count = 1;
+		int tempX = xChange;
+		int tempY = yChange;
+		while ((x + xChange < 15) && (y + yChange < 15) && (points[x + xChange][y + yChange] == color)) {
+			count++;
+			specialpoints[x + xChange][y + yChange] = 1;
+			if (xChange != 0) {
+				xChange++;
+			}
+			if (yChange > 0) {
+				yChange++;
+			} else if (yChange < 0) {
+				yChange--;
+			}
+		}
+		xChange = tempX;
+		yChange = tempY;
+		while ((x - xChange >= 0) && (y - yChange >= 0) && (points[x - xChange][y - yChange] == color)) {
+			count++;
+			specialpoints[x - xChange][y - yChange] = 1;
+			if (xChange != 0) {
+				xChange++;
+			}
+			if (yChange > 0) {
+				yChange++;
+			} else if (yChange < 0) {
+				yChange--;
+			}
+		}
+		return count;
 	}
 	
 	public void mouseClicked(MouseEvent e) {
