@@ -1,6 +1,7 @@
 package gobang;
 
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -11,27 +12,29 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
-import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
-public class CheckerBoard extends JFrame implements MouseListener, ActionListener, Runnable {
-	
+public class CheckerBoard extends JFrame implements ActionListener, MouseListener, Runnable {
+
 	private static final long serialVersionUID = 1L;
 	
 	int screen_width = Toolkit.getDefaultToolkit().getScreenSize().width;
 	int screen_height = Toolkit.getDefaultToolkit().getScreenSize().height;
+	String gameinfo1 = "Not logged in";
+	String gameinfo2;
 	int x, y;
 	int[][] points = new int[15][15];
 	int[][] specialpoints = new int[15][15];
 	boolean isGameOn = false;
 	boolean isBlack = true;
-	String gameinfo = "Welcome";
-	BufferedImage background = null;
 	int maxTime = 0;
 	int blackTime = 0;
 	int whiteTime = 0;
@@ -39,12 +42,11 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 	String whitetime = "Unlimited";
 	Thread thread = new Thread(this);
 	
-	private JButton start = new JButton("Start");
-	private JButton settings = new JButton("Settings");
-	private JButton info = new JButton("Info");
-	private JButton surrender = new JButton("Surrender");
-	private JButton withdraw = new JButton("Withdraw");
-	private JButton exit = new JButton("Exit");
+	JMenuBar jmb;
+	JMenu fuc, set, help, mode, manman, manmac;
+	JMenuItem login, sta, wit, sur, logout, exit, manblack, manwhite, macblack, macwhite, time, info;
+	JTextField tf1, tf2;
+	JTextArea ta1;
 	
 	@SuppressWarnings("deprecation")
 	public CheckerBoard() {
@@ -56,40 +58,87 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 			}
 		}
 		
-		this.setTitle("Gobang Online");
-		this.setSize(497, 502);
-		this.setLocation((screen_width - 497)/2, (screen_height - 502)/2);
-		this.addMouseListener(this);
+		jmb = new JMenuBar();
+		
+		fuc = new JMenu("<html><u>F</u>uction</html>");
+		fuc.setMnemonic('f');
+		set = new JMenu("<html><u>S</u>ettings</html>");
+		set.setMnemonic('s');
+		help = new JMenu("<html><u>H</u>elp</html>");
+		help.setMnemonic('h');
+		mode = new JMenu("Mode");
+		manman = new JMenu("Man-man");
+		manmac = new JMenu("Man-machine");
+		login = new JMenuItem("Log in");
+		login.addActionListener(this);
+		sta = new JMenuItem("Start");
+		sta.addActionListener(this);
+		wit = new JMenuItem("Withdraw");
+		wit.addActionListener(this);
+		sur = new JMenuItem("Surrender");
+		sur.addActionListener(this);
+		logout = new JMenuItem("Log out");
+		logout.addActionListener(this);
+		exit = new JMenuItem("Exit");
+		exit.addActionListener(this);
+		manblack = new JMenuItem("Choose black");
+		manblack.addActionListener(this);
+		manwhite = new JMenuItem("Choose white");
+		manwhite.addActionListener(this);
+		macblack = new JMenuItem("Choose black");
+		macblack.addActionListener(this);
+		macwhite = new JMenuItem("Choose white");
+		macwhite.addActionListener(this);
+		time = new JMenuItem("Time limit");
+		time.addActionListener(this);
+		info = new JMenuItem("Info");
+		info.addActionListener(this);
+		tf1 = new JTextField(gameinfo1);
+		tf2 = new JTextField(gameinfo2);
+		ta1 = new JTextArea();
+		
+		jmb.add(fuc);
+		jmb.add(set);
+		jmb.add(help);
+		fuc.add(login);
+		fuc.add(sta);
+		fuc.add(wit);
+		fuc.add(wit);
+		fuc.add(sur);
+		fuc.add(logout);
+		fuc.add(exit);
+		set.add(mode);
+		set.add(time);
+		mode.add(manman);
+		mode.add(manmac);
+		manman.add(manblack);
+		manman.add(manwhite);
+		manmac.add(macblack);
+		manmac.add(macwhite);
+		help.add(info);
+		
+		tf1.setEditable(false);
+		tf1.setFont(new Font("宋体", Font.BOLD, 12));
+		tf1.setHorizontalAlignment(SwingConstants.CENTER);
+		tf2.setEditable(false);
+		tf2.setFont(new Font("宋体", Font.BOLD, 12));
+		tf2.setHorizontalAlignment(SwingConstants.CENTER);
+		ta1.setEditable(false);
+		ta1.setBackground(new Color(220, 191, 157));;
+		ta1.addMouseListener(this);
+		
+		this.setJMenuBar(jmb);
+		this.add(tf1, "North");
+		this.add(ta1, "Center");
+		this.add(tf2, "South");
+		
+		this.setTitle("五子棋大战 V1.0");
+		this.setSize(500, 500);
+		this.setLocation((screen_width - 500)/2, (screen_height - 500)/2);
 		this.setResizable(false);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
-		this.setLayout(null);
-		
-		try {
-			background = ImageIO.read(new File("resource/Image/background.png"));
-			paint(this.getGraphics());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		start.addActionListener(this);
-		settings.addActionListener(this);
-		info.addActionListener(this);
-		surrender.addActionListener(this);
-		withdraw.addActionListener(this);
-		exit.addActionListener(this);
-		this.add(start);
-		this.add(settings);
-		this.add(info);
-		this.add(surrender);
-		this.add(withdraw);
-		this.add(exit);
-		start.setBounds(383, 52 ,100 ,30);
-		settings.setBounds(383, 102 ,100 ,30);
-		info.setBounds(383, 152 ,100 ,30);
-		surrender.setBounds(383, 253 ,100 ,30);
-		withdraw.setBounds(383, 302 ,100 ,30);
-		exit.setBounds(383, 352 ,100 ,30);
+		this.setLayout(new BorderLayout());
 		
 		thread.start();
 		thread.suspend();
@@ -98,44 +147,51 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 
 	public void paint(Graphics graphics) {
 		
+		super.paint(graphics);
+		
+		tf1.setText(gameinfo1);
+		tf2.setText(gameinfo2);
+		
 		BufferedImage bi = new BufferedImage(497, 502, BufferedImage.TYPE_INT_ARGB);
 		Graphics g = bi.createGraphics();
 		
 		g.setColor(Color.BLACK);
-		g.drawImage(background, 3, 26, this);
-		g.setFont(new Font("Consolas", Font.ITALIC, 20));
-		g.drawString(gameinfo, 100, 60);
 		g.setFont(new Font("Consolas", Font.BOLD, 12));
-		g.drawString("Black's time : " + blacktime, 30, 475);
-		g.drawString("White's time : " + whitetime, 252, 475);
+		g.drawString("Black's time : " + blacktime, 45, 455);
+		g.drawString("White's time : " + whitetime, 267, 455);
 		
 		Graphics2D rim = (Graphics2D)g;
 		rim.setColor(Color.BLACK);
-		rim.setStroke(new BasicStroke(3.0f));
-		rim.drawLine(23, 89, 358, 89);
-		rim.drawLine(23, 89, 23, 424);
-		rim.drawLine(23, 424, 358, 424);
-		rim.drawLine(358, 89, 358, 424);
+		rim.setStroke(new BasicStroke(1.0f));
+		rim.drawLine(82, 101, 417, 101);
+		rim.drawLine(82, 101, 82, 436);
+		rim.drawLine(82, 436, 417, 436);
+		rim.drawLine(417, 101, 417, 436);
 		rim.setStroke(new BasicStroke(1.0f));
 		
-		for (int i = 1; i < 15; i++) {
-			g.drawLine(23, 89 + i*24, 358, 89 + i*24);
+		for (int i = 1; i < 14; i++) {
+			g.drawLine(82, 101 + i*24, 417, 101 + i*24);
 		}
-		for (int i = 1; i < 15; i++) {
-			g.drawLine(23 + i*24, 89, 23 + i*24, 424);
+		for (int i = 1; i < 14; i++) {
+			g.drawLine(82 + i*24, 101, 82 + i*24, 436);
 		}
 		
-		g.fillOval(91, 158, 8, 8);
-		g.fillOval(283, 158, 8, 8);
-		g.fillOval(91, 350, 8, 8);
-		g.fillOval(283, 350, 8, 8);
-		g.fillOval(187, 254, 8, 8);
+		for (int i = 1; i <= 15; i++) {
+			g.drawString(String.valueOf(i), 60, 83 + i*24);
+			g.drawString(String.valueOf(i), 52 + i*24, 95);
+		}
+		
+		g.fillOval(150, 170, 8, 8);
+		g.fillOval(342, 170, 8, 8);
+		g.fillOval(150, 362, 8, 8);
+		g.fillOval(342, 362, 8, 8);
+		g.fillOval(246, 266, 8, 8);
 		
 		for (int i = 0; i < 15; i++) {
 			for (int j = 0; j < 15; j++) {
 				if (specialpoints[i][j] == 1) {
 					g.setColor(Color.RED);
-					g.fillOval(12 + j*24, 78 + i*24, 22, 22);
+					g.fillOval(70 + j*24, 90 + i*24, 22, 22);
 				}
 			}
 		}
@@ -143,13 +199,13 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 			for (int j = 0; j < 15; j++) {
 				if (points[i][j] == 1) {
 					g.setColor(Color.BLACK);
-					g.fillOval(13 + j*24, 79 + i*24, 20, 20);
+					g.fillOval(71 + j*24, 91 + i*24, 20, 20);
 				} else if (points[i][j] == 2) {
 					g.setColor(Color.WHITE);
-					g.fillOval(13 + j*24, 79 + i*24, 20, 20);
+					g.fillOval(71 + j*24, 91 + i*24, 20, 20);
 					if (specialpoints[i][j] == 0) {
 						g.setColor(Color.BLACK);
-						g.drawOval(13 + j*24, 79 + i*24, 20, 20);
+						g.drawOval(71 + j*24, 91 + i*24, 20, 20);
 					}
 				}
 			}
@@ -256,69 +312,26 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 		whitetime = (whiteTime / 3600) + ":" + 
 				(whiteTime / 60 - whiteTime / 3600 * 60) + ":" +
 				(whiteTime - whiteTime / 60 * 60);
-		gameinfo = "Game has been restarted";
+		gameinfo2 = "Game has been restarted";
 		for (int i = 0; i < 15; i++) {
 			for (int j = 0; j < 15; j++) {
 				points[i][j] = 0;
 				specialpoints[i][j] = 0;
 			}
 		}
-		isGameOn = true;
+		isGameOn = false;
 		isBlack = true;
-		start.setText("Restart");
-		thread.resume();
+		sta.setText("Start");
+		thread.suspend();
 		this.repaint();
 	}
 	
-	public void mouseClicked(MouseEvent e) {
-		
-	}
-
 	@SuppressWarnings("deprecation")
-	public void mousePressed(MouseEvent e) {
-		x = e.getY();
-		y = e.getX();
-		if (y >= 11 && y <= 370 && x >= 77 && x <=436 && isGameOn) {
-			y = (y - 11) / 24;
-			x = (x - 77) / 24;
-			if (points[x][y] == 0) {
-				if (isBlack) {
-					gameinfo = "Black moves in (" + (x + 1) + ", " + (y + 1) + ")";
-					points[x][y] = 1;
-					isBlack = false;
-				} else {
-					gameinfo = "White moves in (" + (x + 1) + ", " + (y + 1) + ")";
-					points[x][y] = 2;
-					isBlack = true;
-				}
-				if (this.checkWin()) {
-					JOptionPane.showMessageDialog(this, "The match is end! " + (isBlack ? "White side win!" : "Black side win!"));
-					gameinfo = "Congratulations!";
-					isGameOn = false;
-					thread.suspend();;
-				}
-			} else {
-				JOptionPane.showMessageDialog(this, "Location has been occupied");
-			}
-			this.repaint();
-		}
-	}
-
-	public void mouseReleased(MouseEvent e) {
-		
-	}
-
-	public void mouseEntered(MouseEvent e) {
-		
-	}
-
-	public void mouseExited(MouseEvent e) {
-		
-	}
-
 	public void actionPerformed(ActionEvent e) {
 		Object target = e.getSource();
-		if (target == start) {
+		if (target == login) {
+			
+		} else if (target == sta) {
 			if (isGameOn) {
 				int result = JOptionPane.showConfirmDialog(this, "Restart the game ?");
 				if (result == 0) {
@@ -334,10 +347,42 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 				blackTime = maxTime;
 				whiteTime = maxTime;
 				isGameOn = true;
-				gameinfo = "Game start !";
-				start.setText("Restart");
+				gameinfo2 = "Game start !";
+				sta.setText("Restart");
+				thread.resume();
 			}
-		} else if (target == settings) {
+		} else if (target == wit) {
+			if (points[x][y] != 0) {
+				gameinfo2 = (isBlack ? "White" : "Black") + "side take back a move";
+				points[x][y] = 0;
+				specialpoints[x][y] = 0;
+				isBlack = !isBlack;
+			} else {
+				gameinfo2 = "You can only take back one move";
+			}
+		} else if (target == sur) {
+			int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to surrender?");
+			if (result == 0) {
+				isGameOn = false;
+				sta.setText("Start");
+				JOptionPane.showMessageDialog(this, (isBlack ? "Black " : "White ") + "side choose death ! Game over !");
+			}
+		} else if (target == logout) {
+			
+		} else if (target == exit) {
+			int result = JOptionPane.showConfirmDialog(this, "Exit now ? " + (isGameOn ? "You will lose this Game !" : ""));
+			if (result == 0) {
+				System.exit(0);
+			}
+		} else if (target == manblack) {
+			
+		} else if (target == manwhite) {
+			
+		} else if (target == macblack) {
+			
+		} else if (target == macwhite) {
+			
+		} else if (target == time) {
 			String input = JOptionPane.showInputDialog("Please enter a time limit.(Unit: minutes)"
 					+ "\n\n"
 					+ "0 means no time limit");
@@ -357,30 +402,7 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 				JOptionPane.showMessageDialog(this, "Please enter a pure number");
 			}
 		} else if (target == info) {
-			JOptionPane.showMessageDialog(this, "Black plays first, and players alternate in placing a stone of their color on an empty intersection."
-					+ " \n"
-					+ " The winner is the first player to get an unbroken row of five stones horizontally, vertically, or diagonally.");
-		} else if (target == surrender) {
-			int result = JOptionPane.showConfirmDialog(this, "Are you sure you want to surrender?");
-			if (result == 0) {
-				isGameOn = false;
-				start.setText("Start");
-				JOptionPane.showMessageDialog(this, (isBlack ? "Black " : "White ") + "side choose death ! Game over !");
-			}
-		} else if (target == withdraw) {
-			if (points[x][y] != 0) {
-				gameinfo = (isBlack ? "White" : "Black") + "side take back a move";
-				points[x][y] = 0;
-				specialpoints[x][y] = 0;
-				isBlack = !isBlack;
-			} else {
-				gameinfo = "You can only take back one move";
-			}
-		} else if (target == exit) {
-			int result = JOptionPane.showConfirmDialog(this, "Exit now ? " + (isGameOn ? "You will lose this Game !" : ""));
-			if (result == 0) {
-				System.exit(0);
-			}
+			JOptionPane.showMessageDialog(this, "Made by Posheto");
 		}
 		this.repaint();
 	}
@@ -404,8 +426,8 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 						if (blackTime < 0) {
 							JOptionPane.showMessageDialog(this, "Black side overtime, white side wins");
 							isGameOn = false;
-							start.setText("Start");
-							gameinfo = "Welcome";
+							sta.setText("Start");
+							gameinfo2 = "Welcome";
 							thread.stop();
 						}
 					} else {
@@ -413,8 +435,8 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 						if (whiteTime < 0) {
 							JOptionPane.showMessageDialog(this, "White side overtime, black side wins");
 							isGameOn = false;
-							start.setText("Start");
-							gameinfo = "Welcome";
+							sta.setText("Start");
+							gameinfo2 = "Welcome";
 							thread.stop();
 						}
 					}
@@ -428,5 +450,56 @@ public class CheckerBoard extends JFrame implements MouseListener, ActionListene
 			}
 		}
 	}
-	
+
+	public void mouseClicked(MouseEvent e) {
+		
+	}
+
+	@SuppressWarnings("deprecation")
+	public void mousePressed(MouseEvent e) {
+		for (int i = 0; i < 15; i++) {
+			for (int j = 0; j < 15; j++) {
+				specialpoints[i][j] = 0;
+			}
+		}
+		x = e.getY();
+		y = e.getX();
+		if (y >= 68 && y <= 428 && x >= 20 && x <=380 && isGameOn) {
+			y = (y - 68) / 24;
+			x = (x - 20) / 24;
+			if (points[x][y] == 0) {
+				if (isBlack) {
+					gameinfo2 = "Black moves in (" + (x + 1) + ", " + (y + 1) + ")";
+					points[x][y] = 1;
+					isBlack = false;
+				} else {
+					gameinfo2 = "White moves in (" + (x + 1) + ", " + (y + 1) + ")";
+					points[x][y] = 2;
+					isBlack = true;
+				}
+				if (this.checkWin()) {
+					JOptionPane.showMessageDialog(this, "The match is end! " + (isBlack ? "White side win!" : "Black side win!"));
+					gameinfo2 = "Congratulations!";
+					isGameOn = false;
+					thread.suspend();;
+				}
+			} else {
+				gameinfo2 = "Location has been occupied";
+			}
+			this.repaint();
+		}
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		
+	}
+
+	public void mouseEntered(MouseEvent e) {
+		
+	}
+
+	public void mouseExited(MouseEvent e) {
+		
+	}
+
 }
